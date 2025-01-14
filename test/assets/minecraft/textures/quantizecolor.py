@@ -43,7 +43,10 @@ def convert_image(input_path: str):
     image.save(input_path)
 
 def convert_images_in_folder(input_path):
-    for path, folders, files in os.walk(input_path):
-        pass
+    for path, _, files in os.walk(input_path):
+        for file in files:
+            if (os.path.splitext(file)[1] == "png"):
+                convert_image(f"{path}/{file}")
+                
 
-convert_image("block/furnace_front_on.png")
+convert_images_in_folder("C:/Users/skull/Documents/color-your-blocks/test")
