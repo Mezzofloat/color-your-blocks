@@ -21,7 +21,7 @@ minecraftcolors = {
 }
 
 def closest_color(rgb_tuple: tuple[int, int, int, int]):
-    r, g, b, a = rgb_tuple
+    r, g, b, _ = rgb_tuple
     color_diffs = []
     for color in minecraftcolors:
         cr, cg, cb = minecraftcolors[color]
@@ -45,8 +45,8 @@ def convert_image(input_path: str):
 def convert_images_in_folder(input_path):
     for path, _, files in os.walk(input_path):
         for file in files:
-            if (os.path.splitext(file)[1] == "png"):
+            if (os.path.splitext(file)[1] == ".png"):
                 convert_image(f"{path}/{file}")
                 
 
-convert_images_in_folder("C:/Users/skull/Documents/color-your-blocks/test")
+convert_images_in_folder(".")
