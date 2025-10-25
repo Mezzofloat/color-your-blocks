@@ -33,10 +33,11 @@ test_image_path = Path("test\\assets\\minecraft\\textures\\tumblr_8e62b2cb31fbb7
 # merge into a new resource pack
 def merge_image(input_path: str, color: str):
     mask_path = ""
+    full_path = ""
 
     image = Image.open(input_path).convert("RGBA").load()
     mask = Image.open(mask_path).convert("RGBA").load()
-    full = Image.open(mask_path).convert("RGBA").load()
+    full = Image.open(full_path).convert("RGBA").load()
     width, height = image.size
 
     pixelAlphas = image.getchannel("A").load()
