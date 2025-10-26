@@ -1,6 +1,5 @@
 from pathlib import Path
 from PIL import Image
-import sys
 
 # define minecraft colors
 minecraftcolors = {
@@ -31,9 +30,9 @@ test_image_path = Path("test\\assets\\minecraft\\textures\\tumblr_8e62b2cb31fbb7
 # iterate over every image
 # each pixel should be the previous + the new
 # merge into a new resource pack
-def merge_image(input_path: str, color: str):
-    mask_path = ""
-    full_path = ""
+def merge_image(input_path: Path, color: str):
+    mask_path = mask_pack_path / input_path.relative_to(resource_pack_path)
+    full_path = full_pack_path / input_path.relative_to(resource_pack_path)
 
     image = Image.open(input_path).convert("RGBA").load()
     mask = Image.open(mask_path).convert("RGBA").load()
@@ -57,4 +56,20 @@ def merge_image(input_path: str, color: str):
 #     pass
 
 # rename the new resource pack to [previous]+[new]
-print(Image.open(test_image_path).convert("RGBA").load()[0,0])
+
+merge_color = ""
+
+while True:
+    s = input()
+
+    if (not s in minecraftcolors):
+        print("Please input a color from this list: \nWhite \nLight Gray \nGray \nBlack \nRed \nOrange \nYellow \nLime \nGreen \nCyan \nLight Blue \nBlue \nPurple \nMagenta \nPink \nBrown \nRemember to be case-sensitive!")
+    elif (s == "Cancel"):
+        break
+    else:
+        merge_color = s
+        break
+
+if (not merge_color == ""):
+    for file in resource_pack_path.rglob('*.png'):
+        merge_image(file, merge_color)
