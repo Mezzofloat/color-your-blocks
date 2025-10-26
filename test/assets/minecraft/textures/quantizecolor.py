@@ -1,8 +1,8 @@
 from sklearn.cluster import MeanShift, estimate_bandwidth
+from pathlib import Path
 from PIL import Image
 import numpy as np
 import cv2
-import os
 
 def RGBToOKLAB(pixel):
     r = pixel[0]
@@ -45,43 +45,71 @@ def OKLABToRGB(pixel):
         a
     )
 
+def segmentImage(imagePath):
+    im = Image.open(imagePath).convert("RGBA").load()
 
+for file in Path('test').rglob("*.png"):
+#    segmentImage(file)
+    pass
+
+test = cv2.cvtColor(cv2.imread("test\\assets\\minecraft\\textures\\item\\beef.png"), cv2.COLOR_BGR2RGBA)
+height, width, _ = np.shape(test)
+flat_test = np.reshape(test, (-1,4))
+for pixel in flat_test:
+    pixel = RGBToOKLAB(pixel)
+
+bandwidth = estimate_bandwidth(flat_test, quantile=0.5)
+print(bandwidth)
+
+m = MeanShift(bandwidth=bandwidth)
+m.fit(flat_test)
+labels = m.labels_
+
+un = np.unique(labels)
+segmented_colors = np.random.randint(0, 255, size=(len(un), 4))
+
+print(np.shape(labels))
+labels = np.reshape(labels, (height, width))
+print(np.shape(labels))
+
+colored_segmented_image = np.uint8(segmented_colors[labels])
 # take an image and segment it
 # do it to all images
 
-image_path = "C:/Users/skull/Documents/color-your-blocks/test/assets/minecraft/textures/tumblr_8e62b2cb31fbb752647650f0191ee12a_c83283a0_1280.webp"
-image = cv2.imread(image_path)
+# image_path = "C:/Users/skull/Documents/color-your-blocks/test/assets/minecraft/textures/tumblr_8e62b2cb31fbb752647650f0191ee12a_c83283a0_1280.webp"
+# image = cv2.imread(image_path)
 
 # Check if the image was loaded successfully
-if image is None:
-    print(f"Error: Unable to load image at {image_path}")
-else:
+# if image is None:
+#     print(f"Error: Unable to load image at {image_path}")
+# else:
     # Convert the image to RGB
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+#     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-lab_image = cv2.cvtColor(image, cv2.COLOR_RGB2LAB)
+# lab_image = cv2.cvtColor(image, cv2.COLOR_RGB2LAB)
 
-flat_image = lab_image.reshape((-1, 3))
+# flat_image = lab_image.reshape((-1, 3))
 
-height, width, _ = image.shape
-x, y = np.meshgrid(np.arange(width), np.arange(height))
-flat_image_with_coordinates = np.column_stack([flat_image, x.flatten(), y.flatten()])
+# height, width, _ = image.shape
+# x, y = np.meshgrid(np.arange(width), np.arange(height))
+# flat_image_with_coordinates = np.column_stack([flat_image, x.flatten(), y.flatten()])
 
 # Estimate bandwidth for Mean Shift
-bandwidth = estimate_bandwidth(flat_image_with_coordinates, quantile=0.2, n_samples=500)
+# bandwidth = estimate_bandwidth(flat_image_with_coordinates, quantile=0.2, n_samples=500)
 
 # Perform Mean Shift clustering
-mean_shift = MeanShift(bandwidth=bandwidth, bin_seeding=True)
-mean_shift.fit(flat_image_with_coordinates)
-labels = mean_shift.labels_
+# mean_shift = MeanShift(bandwidth=bandwidth, bin_seeding=True)
+# mean_shift.fit(flat_image_with_coordinates)
+# labels = mean_shift.labels_
 
 # Reshape the labels to the original image shape
-segmented_image = labels.reshape((height, width))
+# segmented_image = labels.reshape((height, width))
 
 # Generate a colored segmented image
-unique_labels = np.unique(labels)
-segmented_colors = np.random.randint(0, 255, size=(len(unique_labels), 3))
-colored_segmented_image = segmented_colors[segmented_image]
+# unique_labels = np.unique(labels)
+# segmented_colors = np.random.randint(0, 255, size=(len(unique_labels), 3))
+# colored_segmented_image = segmented_colors[segmented_image]
 
-cv2.imshow("Original", image)
+cv2.imshow("Original", test)
 cv2.imshow("Segmented", colored_segmented_image)
+cv2.waitKey(0)
