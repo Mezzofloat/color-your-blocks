@@ -46,41 +46,6 @@ def OKLABToRGB(pixel):
     )
 
 def meanShift(imagePath: str, bandwidth):
-    image = Image.open(imagePath).convert("RGBA")
-    width, height = image.size
-    im = image.load()
-    ref = np.reshape(im, (-1,4))
-    new = ref.copy()
-    
-    for i in range(width):
-        for j in range(height):
-            ref[i][j] = RGBToOKLAB(im[i, j])
-
-    for i in range(width):
-        for j in range(height):
-            if (ref[i][j][3] != 0):
-                ch = new[i][j]
-                prev = (0,0,0,0)
-                while (prev[0] != ch[0] and prev[1] != ch[1] and prev[2] != ch[2] and prev[3] != ch[3]):
-                    similar = []
-                    for k in range(width):
-                        for l in range(height):
-                            co = ref[k][l]
-                            if (co[0] * co[0] + co[1] * co[1] + co[2] * co[2] + co[3] * co[3] < bandwidth * bandwidth):
-                                similar.append(co)
-                    
-                    prev = ch
-                    ch = avg(similar)
-
-    for i in range(width):
-        for j in range(height):
-            c = OKLABToRGB(new[i][j])
-            im[i,j] = (np.uint8(c[0]),np.uint8(c[1]),np.uint8(c[2]),np.uint8(c[3]))
-
-    image.save(imagePath)
-    image.show()
-
-def handleMeanShift(meanShifted):
     pass
 
 def avg(list):
@@ -91,34 +56,49 @@ def avg(list):
 
     return sum / l if l != 0 else sum
 
+def handleMeanShift(meanShifted, imagePath):
+    pass
+
 for file in Path('test').rglob("*.png"):
 #    meanShift(file)
     pass
 
-path = Path("block\\orange_glazed_terracotta.png")
+path = Path("block\\bricks.png")
 
-# meanShift("item\\beef.png", 0)
 test = cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGBA)
 height, width, _ = np.shape(test)
 flat_test = np.reshape(test, (-1,4))
 for pixel in flat_test:
     pixel = RGBToOKLAB(pixel)
 
-bandwidth = estimate_bandwidth(flat_test, quantile=0.4)
-# print(bandwidth)
+bandwidth = estimate_bandwidth(flat_test, quantile=0.25)
 
 m = MeanShift(bandwidth=bandwidth)
 m.fit(flat_test)
 labels = m.labels_
 
 un = np.unique(labels)
-segmented_colors = np.random.randint(0, 255, size=(len(un), 4))
 
-# print(np.shape(labels))
+segmented_colors = []
+for label in un:
+    for i in len(flat_test):
+        pixel = flat_test[i]
+        i_colors = []
+        if (labels[i] == label):
+            i_colors.append(pixel)
+
 labels = np.reshape(labels, (height, width))
-# print(np.shape(labels))
 
 colored_segmented_image = np.uint8(segmented_colors[labels])
+test = cv2.cvtColor(test, cv2.COLOR_RGBA2BGR)
+
+test = cv2.resize(test, (width * 15, height * 15), interpolation=cv2.INTER_NEAREST)
+colored_segmented_image = cv2.resize(colored_segmented_image, (width * 10, height * 10), interpolation=cv2.INTER_NEAREST)
+
+cv2.imshow("Original", test)
+cv2.imshow("Segmented", colored_segmented_image)
+cv2.waitKey(0)
+
 # take an image and segment it
 # do it to all images
 
@@ -155,12 +135,3 @@ colored_segmented_image = np.uint8(segmented_colors[labels])
 # unique_labels = np.unique(labels)
 # segmented_colors = np.random.randint(0, 255, size=(len(unique_labels), 3))
 # colored_segmented_image = segmented_colors[segmented_image]
-
-test = cv2.cvtColor(test, cv2.COLOR_RGBA2BGR)
-
-test = cv2.resize(test, (width * 10, height * 10), interpolation=cv2.INTER_NEAREST)
-colored_segmented_image = cv2.resize(colored_segmented_image, (width * 10, height * 10), interpolation=cv2.INTER_NEAREST)
-
-cv2.imshow("Original", test)
-cv2.imshow("Segmented", colored_segmented_image)
-cv2.waitKey(0)
