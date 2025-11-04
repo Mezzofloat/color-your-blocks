@@ -59,14 +59,14 @@ for file in Path('test').rglob("*.png"):
 #    meanShift(file)
     pass
 
-path = Path("block\\bricks.png")
+path = Path("block\\crying_obsidian.png")
 
 test = cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGBA)
 height, width, _ = np.shape(test)
 flat_test = np.reshape(test, (-1,4))
 flat_test = np.apply_along_axis(RGBToOKLAB, axis=1, arr=flat_test)
 
-bandwidth = estimate_bandwidth(flat_test, quantile=0.21)
+bandwidth = estimate_bandwidth(flat_test, quantile=0.25)
 
 m = MeanShift(bandwidth=bandwidth)
 m.fit(flat_test)
