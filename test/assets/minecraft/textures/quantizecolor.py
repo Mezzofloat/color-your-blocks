@@ -45,9 +45,6 @@ def OKLABToRGB(pixel):
         a
     )
 
-def meanShift(imagePath: str, bandwidth):
-    pass
-
 def avg(list):
     l = len(list)
     if (l == 0):
@@ -55,7 +52,7 @@ def avg(list):
     else:
         return tuple([sum(x)/len(x) for x in zip(*list)])
 
-def handleMeanShift(meanShifted, imagePath):
+def meanShift():
     pass
 
 for file in Path('test').rglob("*.png"):
@@ -93,6 +90,8 @@ colored_segmented_image = np.uint8(np.array(segmented_colors)[labels])
 
 test = cv2.cvtColor(test, cv2.COLOR_RGBA2BGR)
 colored_segmented_image = cv2.cvtColor(colored_segmented_image, cv2.COLOR_RGBA2BGR)
+
+cv2.imwrite(path, colored_segmented_image)
 
 test = cv2.resize(test, (width * 15, height * 15), interpolation=cv2.INTER_NEAREST)
 colored_segmented_image = cv2.resize(colored_segmented_image, (width * 15, height * 15), interpolation=cv2.INTER_NEAREST)
