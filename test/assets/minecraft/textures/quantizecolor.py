@@ -52,7 +52,38 @@ def avg(list):
     else:
         return tuple([sum(x)/len(x) for x in zip(*list)])
 
-def meanShift():
+def meanShift(image_path: str):
+    path = Path(image_path)
+
+    test = cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGBA)
+    height, width, _ = np.shape(test)
+    flat_test = np.reshape(test, (-1,4))
+    flat_test = np.apply_along_axis(RGBToOKLAB, axis=1, arr=flat_test)
+
+    bandwidth = estimate_bandwidth(flat_test, quantile=0.25)
+
+    m = MeanShift(bandwidth=bandwidth)
+    m.fit(flat_test)
+    labels = m.labels_
+
+    un = np.unique(labels)
+    segmented_colors = []
+    for label in un:
+        i_colors=[]
+        for i in range(len(flat_test)):
+            pixel = flat_test[i]
+            if (labels[i] == label):
+                i_colors.append(pixel)
+        average = avg(i_colors)
+        rgb = OKLABToRGB(average)
+        segmented_colors.append(rgb)
+
+    labels = np.reshape(labels, (height, width))
+
+    colored_segmented_image = np.uint8(np.array(segmented_colors)[labels])
+    colored_segmented_image = cv2.cvtColor(colored_segmented_image, cv2.COLOR_RGBA2BGR)
+
+    cv2.imwrite(path, colored_segmented_image)
     pass
 
 for file in Path('test').rglob("*.png"):
