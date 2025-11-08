@@ -24,27 +24,34 @@ minecraftcolors = {
 # define needed paths
 full_pack_path = Path("full")
 resource_pack_path = Path("color-your-blocks")
-mask_pack_path = Path("masks")
+mask_pack_path = Path("test")
 test_image_path = Path("test\\assets\\minecraft\\textures\\tumblr_8e62b2cb31fbb752647650f0191ee12a_c83283a0_1280.webp")
 
 # iterate over every image
 # each pixel should be the previous + the new
 # merge into a new resource pack
 def merge_image(input_path: Path, color: str):
+    if (input_path.name == "respawn_anchor_side4.png"):
+        print("respawn anchor being read")
+
     mask_path = mask_pack_path / input_path.relative_to(resource_pack_path)
     full_path = full_pack_path / input_path.relative_to(resource_pack_path)
 
-    image = Image.open(input_path).convert("RGBA").load()
+    inputImage = Image.open(input_path).convert("RGBA")
+
+    image = inputImage.load()
     mask = Image.open(mask_path).convert("RGBA").load()
     full = Image.open(full_path).convert("RGBA").load()
-    width, height = image.size
+    width, height = inputImage.size
 
-    pixelAlphas = image.getchannel("A").load()
+    pixelAlphas = inputImage.getchannel("A").load()
 
     for i in range(width):
         for j in range(height):
             if pixelAlphas[i, j] != 0 and mask[i, j] == minecraftcolors[color]:
                 image[i, j] = full[i, j]
+
+    inputImage.save(input_path)
 
 # for path, _, files in os.walk(input_path):
 #     for file in files:

@@ -90,7 +90,7 @@ for file in Path('test').rglob("*.png"):
 #    meanShift(file)
     pass
 
-path = Path("block\\crying_obsidian.png")
+path = Path("tumblr_8e62b2cb31fbb752647650f0191ee12a_c83283a0_1280.webp")
 
 test = cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGBA)
 height, width, _ = np.shape(test)
