@@ -23,10 +23,9 @@ minecraftcolors = {
 }
 
 # define needed paths
-full_pack_path = Path("full")
+full_pack_path = Path("full_subset")
 resource_pack_path = Path("color-your-blocks")
 mask_pack_path = Path("masks")
-test_image_path = Path("test\\assets\\minecraft\\textures\\tumblr_8e62b2cb31fbb752647650f0191ee12a_c83283a0_1280.webp")
 
 all_white_path = Path("white")
 
