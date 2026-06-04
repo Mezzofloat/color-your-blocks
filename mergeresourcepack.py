@@ -1,24 +1,25 @@
 from pathlib import Path
 from PIL import Image
+from argparse import ArgumentParser
 
 # define minecraft colors
 minecraftcolors = {
-    "White": (207, 213, 214, 255),
-    "Light Gray": (135, 135, 135, 255),
-    "Gray": (62, 68, 71, 255),
-    "Black": (21, 21, 26, 255),
-    "Red": (142, 33, 32, 255),
-    "Orange": (224, 97, 0, 255),
-    "Yellow": (240, 175, 21, 255),
-    "Lime": (94, 168, 24, 255),
-    "Green": (73, 91, 36, 255),
-    "Cyan": (22, 156, 156, 255),
-    "Light Blue": (58, 179, 218, 255),
-    "Blue": (61, 74, 176, 255),
-    "Purple": (137, 50, 184, 255),
-    "Magenta": (190, 68, 179, 255),
-    "Pink": (237, 141, 172, 255),
-    "Brown": (96, 60, 32, 255)
+    "white": (207, 213, 214, 255),
+    "light-gray": (135, 135, 135, 255),
+    "gray": (62, 68, 71, 255),
+    "black": (21, 21, 26, 255),
+    "red": (142, 33, 32, 255),
+    "orange": (224, 97, 0, 255),
+    "yellow": (240, 175, 21, 255),
+    "lime": (94, 168, 24, 255),
+    "green": (73, 91, 36, 255),
+    "cyan": (22, 156, 156, 255),
+    "light-blue": (58, 179, 218, 255),
+    "blue": (61, 74, 176, 255),
+    "purple": (137, 50, 184, 255),
+    "magenta": (190, 68, 179, 255),
+    "pink": (237, 141, 172, 255),
+    "brown": (96, 60, 32, 255)
 }
 
 # define needed paths
@@ -27,13 +28,12 @@ resource_pack_path = Path("color-your-blocks")
 mask_pack_path = Path("test")
 test_image_path = Path("test\\assets\\minecraft\\textures\\tumblr_8e62b2cb31fbb752647650f0191ee12a_c83283a0_1280.webp")
 
+all_white_path = Path("white (original) a@4fd$")
+
 # iterate over every image
 # each pixel should be the previous + the new
 # merge into a new resource pack
 def merge_image(input_path: Path, color: str):
-    if (input_path.name == "respawn_anchor_side4.png"):
-        print("respawn anchor being read")
-
     mask_path = mask_pack_path / input_path.relative_to(resource_pack_path)
     full_path = full_pack_path / input_path.relative_to(resource_pack_path)
 
@@ -53,6 +53,20 @@ def merge_image(input_path: Path, color: str):
 
     inputImage.save(input_path)
 
+def restart(input_path: Path):
+    whitePath = all_white_path / input_path.relative_to(resource_pack_path)
+    white = Image.open(whitePath).convert("RGBA").load()
+
+    inputImage = Image.open(input_path).convert("RGBA")
+    image = inputImage.load()
+    width, height = inputImage.size
+
+    for i in range(width):
+        for j in range(height):
+            image[i,j] = white[i,j]
+
+    inputImage.save(input_path)
+
 # for path, _, files in os.walk(input_path):
 #     for file in files:
 #         if (os.path.splitext(file)[1] == ".png"):
@@ -64,19 +78,35 @@ def merge_image(input_path: Path, color: str):
 
 # rename the new resource pack to [previous]+[new]
 
-merge_color = ""
+parser = ArgumentParser()
 
-while True:
-    s = input()
+parser.add_argument('--add-color', '-c', choices=[
+    'white',
+    'light-gray',
+    'gray',
+    'black',
+    'red',
+    'orange',
+    'yellow',
+    'green',
+    'lime',
+    'blue',
+    'light-blue',
+    'cyan',
+    'purple',
+    'pink',
+    'magenta',
+    'brown'
+])
+parser.add_argument('--restart', action='store_true')
 
-    if (not s in minecraftcolors):
-        print("Please input a color from this list: \nWhite \nLight Gray \nGray \nBlack \nRed \nOrange \nYellow \nLime \nGreen \nCyan \nLight Blue \nBlue \nPurple \nMagenta \nPink \nBrown \nRemember to be case-sensitive!")
-    elif (s == "Cancel"):
-        break
-    else:
-        merge_color = s
-        break
+args = parser.parse_args()
 
-if (not merge_color == ""):
+if args.restart:
     for file in resource_pack_path.rglob('*.png'):
-        merge_image(file, merge_color)
+        print(file)
+        restart(file)
+else:
+    for file in resource_pack_path.rglob('*.png'):
+        print(file)
+        merge_image(file, args.add_color)
