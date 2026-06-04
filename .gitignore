@@ -1,2 +1,4 @@
-# ignore everything in the assets folder, i can get them back if anything happens to them
-/assets
+# ignore all python files, since they are used in development and not usage
+**/*.py
+
+# mergeresourcepack.py is not in a directory, and thus is not ignored
